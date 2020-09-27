@@ -22,12 +22,19 @@ set shiftround
 set tabstop=4
 set lazyredraw
 set laststatus=2
-
 "
 syntax on
 
+" color schema
+set background=dark
+colo molokai
+" plugin
 call plug#begin('~/.vim/plugged')
 Plug 'scrooloose/nerdtree'
+Plug 'majutsushi/tagbar'
+Plug 'sheerun/vim-polyglot'
 call plug#end()
 
 map <C-n> :NERDTreeToggle<CR>
+nmap <F8> :TagbarToggle<CR>
+
