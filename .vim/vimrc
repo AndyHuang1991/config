@@ -2,14 +2,26 @@
 set autoindent
 set background=dark
 set backspace=indent,eol,start
+set cursorline
 set encoding=utf8
 set expandtab
 set hlsearch
 set list
 set listchars=trail:·,tab:▷·
+set nobomb
 set nocompatible
+set nofoldenable
 set ruler
+set secure
 set shiftwidth=4
+set smartcase
+set ignorecase
+set t_Co=256
+set wildmenu
+set shiftround
+set tabstop=4
+set lazyredraw
+set laststatus=2
 
 "
 syntax on
