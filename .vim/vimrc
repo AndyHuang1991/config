@@ -25,3 +25,9 @@ set laststatus=2
 
 "
 syntax on
+
+call plug#begin('~/.vim/plugged')
+Plug 'scrooloose/nerdtree'
+call plug#end()
+
+map <C-n> :NERDTreeToggle<CR>
