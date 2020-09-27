@@ -34,7 +34,10 @@ Plug 'scrooloose/nerdtree'
 Plug 'majutsushi/tagbar'
 Plug 'sheerun/vim-polyglot'
 call plug#end()
-
+"
+filetype plugin indent on
+"
+" map
 map <C-n> :NERDTreeToggle<CR>
 nmap <F8> :TagbarToggle<CR>
 "
