@@ -1,5 +1,15 @@
 "
 set autoindent
+set background=dark
 set backspace=indent,eol,start
+set encoding=utf8
+set expandtab
+set hlsearch
+set list
+set listchars=trail:·,tab:▷·
+set nocompatible
+set ruler
+set shiftwidth=4
+
 "
 syntax on
