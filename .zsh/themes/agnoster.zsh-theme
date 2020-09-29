@@ -22,11 +22,33 @@
 # jobs are running in this shell will all be displayed automatically when
 # appropriate.
 
+### Segments of the prompt, default order declaration
+
+typeset -aHg AGNOSTER_PROMPT_SEGMENTS=(
+    prompt_status
+    prompt_context
+    prompt_virtualenv
+    prompt_dir
+    prompt_git
+    prompt_end
+)
+
 ### Segment drawing
 # A few utility functions to make it easy and re-usable to draw segmented prompts
 
 CURRENT_BG='NONE'
-SEGMENT_SEPARATOR='⮀'
+if [[ -z "$PRIMARY_FG" ]]; then
+	PRIMARY_FG=black
+fi
+
+# Characters
+SEGMENT_SEPARATOR="\ue0b0"
+PLUSMINUS="\u00b1"
+BRANCH="\ue0a0"
+DETACHED="\u27a6"
+CROSS="\u2718"
+LIGHTNING="\u26a1"
+GEAR="\u2699"
 
 # Begin a segment
 # Takes two arguments, background and foreground. Both can be omitted,
@@ -36,22 +58,22 @@ prompt_segment() {
   [[ -n $1 ]] && bg="%K{$1}" || bg="%k"
   [[ -n $2 ]] && fg="%F{$2}" || fg="%f"
   if [[ $CURRENT_BG != 'NONE' && $1 != $CURRENT_BG ]]; then
-    echo -n " %{$bg%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR%{$fg%} "
+    print -n "%{$bg%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR%{$fg%}"
   else
-    echo -n "%{$bg%}%{$fg%} "
+    print -n "%{$bg%}%{$fg%}"
   fi
   CURRENT_BG=$1
-  [[ -n $3 ]] && echo -n $3
+  [[ -n $3 ]] && print -n $3
 }
 
 # End the prompt, closing any open segments
 prompt_end() {
   if [[ -n $CURRENT_BG ]]; then
-    echo -n " %{%k%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR"
+    print -n "%{%k%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR"
   else
-    echo -n "%{%k%}"
+    print -n "%{%k%}"
   fi
-  echo -n "%{%f%}"
+  print -n "%{%f%}"
   CURRENT_BG=''
 }
 
@@ -59,34 +81,42 @@ prompt_end() {
 # Each component will draw itself, and hide itself if no information needs to be shown
 
 # Context: user@hostname (who am I and where am I)
-
 prompt_context() {
-  if [ $DEFAULT_USER ]; then
-    prompt_segment blue 7 "%(!.%{%F{yellow}%}.)$DEFAULT_USER"
-  elif [[ "$USER" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
-    prompt_segment blue 7 "%(!.%{%F{yellow}%}.)$USER@%m"
+  local user=`whoami`
+
+  if [[ "$user" != "$DEFAULT_USER" || -n "$SSH_CONNECTION" ]]; then
+    prompt_segment $PRIMARY_FG default " %(!.%{%F{yellow}%}.)$user@%m "
   fi
 }
 
 # Git: branch/detached head, dirty status
 prompt_git() {
-  local ref dirty
-  if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
-    ZSH_THEME_GIT_PROMPT_DIRTY='±'
-    dirty=$(parse_git_dirty)
-    ref=$(git symbolic-ref HEAD 2> /dev/null) || ref="➦ $(git show-ref --head -s --abbrev |head -n1 2> /dev/null)"
-    if [[ -n $dirty ]]; then
-      prompt_segment yellow black
+  local color ref
+  is_dirty() {
+    test -n "$(git status --porcelain --ignore-submodules)"
+  }
+  ref="$vcs_info_msg_0_"
+  if [[ -n "$ref" ]]; then
+    if is_dirty; then
+      color=yellow
+      ref="${ref} $PLUSMINUS"
     else
-      prompt_segment green black
+      color=green
+      ref="${ref} "
     fi
-    echo -n "${ref/refs\/heads\//⭠ }$dirty"
+    if [[ "${ref/.../}" == "$ref" ]]; then
+      ref="$BRANCH $ref"
+    else
+      ref="$DETACHED ${ref/.../}"
+    fi
+    prompt_segment $color $PRIMARY_FG
+    print -n " $ref"
   fi
 }
 
 # Dir: current working directory
 prompt_dir() {
-  prompt_segment 7 black '%c'
+  prompt_segment blue $PRIMARY_FG ' %~ '
 }
 
 # Status:
@@ -96,39 +126,48 @@ prompt_dir() {
 prompt_status() {
   local symbols
   symbols=()
-  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}✘"
-  [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}⚡"
-  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}⚙"
+  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}$CROSS"
+  [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}$LIGHTNING"
+  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}$GEAR"
 
-  [[ -n "$symbols" ]] && prompt_segment black default "$symbols"
+  [[ -n "$symbols" ]] && prompt_segment $PRIMARY_FG default " $symbols "
+}
+
+# Display current virtual environment
+prompt_virtualenv() {
+  if [[ -n $VIRTUAL_ENV ]]; then
+    color=cyan
+    prompt_segment $color $PRIMARY_FG
+    print -Pn " $(basename $VIRTUAL_ENV) "
+  fi
 }
 
 ## Main prompt
-build_prompt() {
+prompt_agnoster_main() {
   RETVAL=$?
-  prompt_status
-  prompt_context
-  prompt_dir
-  prompt_ruby
-  prompt_git
-  prompt_end
+  CURRENT_BG='NONE'
+  for prompt_segment in "${AGNOSTER_PROMPT_SEGMENTS[@]}"; do
+    [[ -n $prompt_segment ]] && $prompt_segment
+  done
 }
 
-PROMPT='%{%f%b%k%}$(build_prompt) '
-
-# Ruby version
-
-prompt_ruby() {
-  grep 'rails' 'Gemfile' >/dev/null 2>&1
-  if [ $? -eq 0 ]; then
-    local ruby_version=''
-    if which rvm-prompt &> /dev/null; then
-      ruby_version="$(rvm-prompt i v g)"
-    else
-      if which rbenv &> /dev/null; then
-        ruby_version="$(rbenv version | sed -e "s/ (set.*$//")"
-      fi
-    fi
-    prompt_segment red default "$ruby_version"
-  fi
+prompt_agnoster_precmd() {
+  vcs_info
+  PROMPT='%{%f%b%k%}$(prompt_agnoster_main) '
 }
+
+prompt_agnoster_setup() {
+  autoload -Uz add-zsh-hook
+  autoload -Uz vcs_info
+
+  prompt_opts=(cr subst percent)
+
+  add-zsh-hook precmd prompt_agnoster_precmd
+
+  zstyle ':vcs_info:*' enable git
+  zstyle ':vcs_info:*' check-for-changes false
+  zstyle ':vcs_info:git*' formats '%b'
+  zstyle ':vcs_info:git*' actionformats '%b (%a)'
+}
+
+prompt_agnoster_setup "$@"
