@@ -14,6 +14,9 @@ cp ${BASEDIR}/.zshrc ~/
 if [ ! -e ~/.zshrc.local ]; then
     cp ${BASEDIR}/.zshrc.local ~/
 fi
+mkdir -p ~/.zsh/ || true
+rsync -a ${BASEDIR}/.zsh/ ~/.zsh/
+chmod 700 ~/.zsh/
 
 
 # nvim
