@@ -5,3 +5,10 @@ if [ -d "${PYENV_ROOT}" ]; then
     eval "$(pyenv init - --no-rehash)"
 fi
 #
+export POETRY_ROOT="${HOME}/.poetry"
+if [ -d "${POETRY_ROOT}" ]; then
+    export PATH="${POETRY_ROOT}/bin:${PATH}"
+    if [ ! -e "${HOME}/.zfunc/_poetry" ]; then
+        eval "$(poetry completions zsh > ${HOME}/.zfunc/_poetry)"
+    fi
+fi
