@@ -11,5 +11,11 @@ compinit
 
 setopt promptsubst
 source ~/.zsh/themes/agnoster.zsh-theme
+
+alias "gs=git status"
+alias "gd=git diff"
+alias "la=ls -al"
+alias "ll=ls -l"
+
 #
 [[ -s "$HOME/.zshrc.local" ]] && . "$HOME/.zshrc.local"
