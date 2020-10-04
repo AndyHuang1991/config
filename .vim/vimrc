@@ -37,6 +37,7 @@ Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-fugitive'
+Plug 'terryma/vim-expand-region'
 call plug#end()
 "
 filetype plugin indent on
@@ -44,6 +45,8 @@ filetype plugin indent on
 " map
 map <C-n> :NERDTreeToggle<CR>
 nmap <F8> :TagbarToggle<CR>
+vmap V <Plug>(expand_region_shrink)
+vmap v <Plug>(expand_region_expand)
 "
 "https://vim.fandom.com/wiki/Toggle_auto-indenting_for_code_paste
 nnoremap <F2> :set invpaste paste?<CR>
