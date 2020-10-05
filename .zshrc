@@ -5,11 +5,15 @@ DEFAULT_USER=`whoami`
 
 [[ -d "${HOME}/.zfunc" ]] || mkdir -p ${HOME}/.zfunc
 fpath+=~/.zfunc
-
+#
 autoload -Uz compinit
 compinit
 autoload -Uz bashcompinit
 bashcompinit
+#
+autoload -Uz vcs_info
+zstyle ':vcs_info:*' enable git
+zstyle ':vcs_info:git*' formats "%b"
 
 setopt promptsubst
 source ~/.zsh/themes/agnoster.zsh-theme
