@@ -20,8 +20,8 @@ source ~/.zsh/themes/agnoster.zsh-theme
 
 alias "gs=git status"
 alias "gd=git diff"
-alias "la=ls -al"
-alias "ll=ls -l"
+alias "ls=ls -aFG"
+alias "ll=ls -lh"
 
 #
 [[ -s "$HOME/.zshrc.local" ]] && . "$HOME/.zshrc.local"
