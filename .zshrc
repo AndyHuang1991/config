@@ -8,6 +8,8 @@ fpath+=~/.zfunc
 
 autoload -Uz compinit
 compinit
+autoload -Uz bashcompinit
+bashcompinit
 
 setopt promptsubst
 source ~/.zsh/themes/agnoster.zsh-theme
