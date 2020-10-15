@@ -14,7 +14,8 @@ bashcompinit
 autoload -Uz vcs_info
 zstyle ':vcs_info:*' enable git
 zstyle ':vcs_info:git*' formats "%b"
-
+#
+#
 setopt promptsubst
 source ~/.zsh/themes/agnoster.zsh-theme
 

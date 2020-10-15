@@ -42,6 +42,7 @@ call plug#end()
 "
 filetype plugin indent on
 "
+let g:omni_sql_no_default_maps = 1
 " map
 map <C-n> :NERDTreeToggle<CR>
 nmap <F8> :TagbarToggle<CR>
