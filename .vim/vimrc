@@ -22,6 +22,8 @@ set shiftround
 set tabstop=4
 set lazyredraw
 set laststatus=2
+set number
+set relativenumber
 "
 syntax on
 
