@@ -1,6 +1,5 @@
 #
 umask 022
-cd "$HOME"
 DEFAULT_USER=`whoami`
 
 [[ -d "${HOME}/.zfunc" ]] || mkdir -p ${HOME}/.zfunc
