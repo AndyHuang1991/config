@@ -28,3 +28,10 @@ mkdir -p ~/.vim/ || true
 rsync -a ${BASEDIR}/.vim/ ~/.vim/
 chmod 700 ~/.vim/
 vim +PlugUpdate +PlugClean\! +q +q
+
+# git
+cp ${BASEDIR}/git/.gitconfig ~/
+if [ ! -e ~.gitconfig.local ]; then
+    cp ${BASEDIR}/git/.gitconfig.local ~/
+fi
+
